@@ -1,68 +1,76 @@
-# ISA 401 Job Scout Chat
+# ISA 401 Midwest Airbnb Chat
 
 **Ask a question in plain English, get the SQL and a table back**
 
-A twelve-line [querychat](https://github.com/posit-dev/querychat) app built in ISA 401 (Miami University) on the job postings that [ChatISA](https://chatisa.fsb.miamioh.edu) Job Scout collected. It is the starting point for Assignment 05, where you rebuild it on the Airbnb data, deploy it to [Render](https://render.com) from your GitHub repository, and then improve it.
+A querychat app built in ISA 401 at Miami University using 14,887 Airbnb listings from Chicago, Columbus, and the Twin Cities.
 
-**Live app:** (paste your Render URL here once it is deployed, for example `https://job-scout-chat.onrender.com`)
+**Live app:** https://midwest-airbnb-chat-k4av.onrender.com
 
 ---
 
 ## What is this app?
 
-The app connects to a SQLite database (`data/scout.db`), hands the `scout_postings` table to querychat, and lets an LLM translate your question into SQL. Every answer shows the query it ran, so you can check the logic and reuse the SQL yourself.
+The app connects to the Midwest Airbnb SQLite database and allows users to ask questions about Airbnb listings in plain English. Querychat translates the questions into SQL and returns results from the listings data.
 
 **Example queries:**
-- "How many of the postings are remote?"
-- "Which ten companies have the most postings?"
-- "Show the internship postings in Ohio."
+- "How many listings are in each city?"
+- "What is the average price of a listing in each city?"
+- "Which neighborhoods have the highest average review ratings?"
+
+## App Screenshot
+
+![Midwest Airbnb Chat](app_screenshot.png)
 
 ---
 
 ## Dataset Information
 
-**Dataset:** `scout_postings` table in `data/scout.db` (1,891 rows, 19 columns)
-**Source:** ChatISA Job Scout, which harvested the postings from public job boards between July 29 and August 23, 2026 (the `source` column records the board: `activejobs` or `usajobs`)
-**Data dictionary:** `data/data_desc.md` (started in class; you complete it in Assignment 05)
-**Query rules for the LLM:** `data/extra_instructions.md` (one starter rule; you add more)
+**Dataset:** `listings` table in `data/midwest_airbnb.db` (14,887 rows, 29 columns)  
+**Source:** Inside Airbnb  
+**Cities and snapshot dates:** Chicago (July 20, 2026), Columbus (July 23, 2026), and Twin Cities (July 21, 2026)  
+**Data dictionary:** `data/data_desc.md`  
+**Query rules for the LLM:** `data/extra_instructions.md`
 
 ### Key Fields
 
 | Field | Description |
 |-------|-------------|
-| `title` | Job title as it appeared on the board |
-| `company` | Employer name |
-| `location_city` | City of the posting (blank for 61 rows) |
-| `location_state` | Two-letter state code (blank for 30 rows) |
-| `remote` | `1` if the posting is remote, `0` otherwise |
-| `category` | `fulltime`, `federal`, or `internship` |
+| `city` | City associated with the Airbnb listing |
+| `neighbourhood` | Inside Airbnb neighborhood |
+| `price` | Nightly listing price |
+| `property_type` | Type of Airbnb property |
+| `accommodates` | Number of guests the listing accommodates |
+| `review_scores_rating` | Listing review rating |
+| `estimated_revenue_l365d` | Estimated revenue over the last 365 days |
+| `amenities_count` | Number of amenities for the listing |
 
 ---
 
 ## Required Secret
 
-The app calls OpenAI (`gpt-5.6-luna (reasoning off)`) through [ellmer](https://ellmer.tidyverse.org/), so it needs one environment variable:
+The app calls OpenAI (`gpt-5.6-luna` with reasoning off) through ellmer, so it requires an environment variable named `OPENAI_API_KEY`.
 
-```bash
-export OPENAI_API_KEY="your-api-key-here"
-```
+For local use, the API key is stored in `.Renviron`. For the deployed app, `OPENAI_API_KEY` is added as an environment variable in Render.
 
-On Hugging Face Spaces, add it under **Settings > Variables and secrets** as a secret named `OPENAI_API_KEY`. Never commit the key; `.Renviron` is listed in `.gitignore` for that reason.
-
+Never commit the API key. `.Renviron` is listed in `.gitignore` for that reason.
 ---
 
 ## Running Locally
 
-**With R (4.6.0, querychat 0.3.0):**
+
+with:
+
+````markdown
+**With R:**
 ```r
-# from inside apps/job_scout_chat/
-shiny::runApp(".", port = 7860)
+# from inside apps/midwest_airbnb_chat/
+shiny::runApp()
 ```
 
 **With Docker:**
 ```bash
-docker build -t job_scout_chat .
-docker run --rm -p 7860:7860 -e OPENAI_API_KEY=$OPENAI_API_KEY job_scout_chat
+docker build -t midwest_airbnb_chat .
+docker run --rm -p 7860:7860 -e OPENAI_API_KEY=$OPENAI_API_KEY midwest_airbnb_chat
 ```
 
 Then open http://localhost:7860.
@@ -80,4 +88,4 @@ Then open http://localhost:7860.
 
 ## Course Information
 
-This application was developed for **ISA 401** at **Miami University**. The polished version of the same idea, built on BLS wage data, is the [OEWS Jobs Explorer](https://huggingface.co/spaces/fmegahed/querychat_demo).
+This application was developed for **ISA 401: Business Intelligence & Analytics** at **Miami University** as part of Assignment 05.
